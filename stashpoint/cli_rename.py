@@ -9,6 +9,12 @@ def rename_cmd():
     """Rename a snapshot."""
 
 
+def _handle_rename_error(e: Exception) -> None:
+    """Print an error message to stderr and exit with code 1."""
+    click.echo(f"Error: {e}", err=True)
+    raise SystemExit(1)
+
+
 @rename_cmd.command("run")
 @click.argument("old_name")
 @click.argument("new_name")
@@ -18,8 +24,6 @@ def rename_run_cmd(old_name: str, new_name: str):
         rename_snapshot(old_name, new_name)
         click.echo(f"Snapshot '{old_name}' renamed to '{new_name}'.")
     except SnapshotNotFoundError as e:
-        click.echo(f"Error: {e}", err=True)
-        raise SystemExit(1)
+        _handle_rename_error(e)
     except SnapshotAlreadyExistsError as e:
-        click.echo(f"Error: {e}", err=True)
-        raise SystemExit(1)
+        _handle_rename_error(e)

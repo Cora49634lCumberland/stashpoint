@@ -16,7 +16,11 @@ def rename_snapshot(old_name: str, new_name: str, stash_path=None) -> None:
 
     Raises SnapshotNotFoundError if old_name does not exist.
     Raises SnapshotAlreadyExistsError if new_name already exists.
+    Raises ValueError if old_name and new_name are the same.
     """
+    if old_name == new_name:
+        raise ValueError("New name must be different from the current name.")
+
     snapshots = load_snapshots(stash_path)
 
     if old_name not in snapshots:

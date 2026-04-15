@@ -82,3 +82,19 @@ def test_history_persists_across_calls():
     # Reload by calling get_history fresh
     entries = hist.get_history(snapshot_name="persist")
     assert len(entries) == 2
+
+
+def test_limit_zero_returns_empty_list():
+    """A limit of 0 should return an empty list, not all entries."""
+    hist.record_event("save", "snap-a")
+    hist.record_event("save", "snap-b")
+    entries = hist.get_history(limit=0)
+    assert entries == []
+
+
+def test_limit_exceeding_total_returns_all():
+    """A limit larger than the total number of entries should return all entries."""
+    hist.record_event("save", "snap-a")
+    hist.record_event("restore", "snap-a")
+    entries = hist.get_history(limit=100)
+    assert len(entries) == 2

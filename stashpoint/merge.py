@@ -86,3 +86,28 @@ def get_merge_conflicts(source_names: list[str]) -> dict[str, list[str]]:
             conflicts[key] = values
 
     return conflicts
+
+
+def list_merge_sources(source_names: list[str]) -> dict[str, list[str]]:
+    """Return a mapping of each key to the snapshot names that define it.
+
+    Useful for understanding which snapshots contribute which keys before
+    performing a merge.
+
+    Args:
+        source_names: List of snapshot names to inspect.
+
+    Returns:
+        A dict mapping each key -> list of snapshot names that contain it.
+
+    Raises:
+        SnapshotNotFoundError: If any source snapshot does not exist.
+    """
+    key_sources: dict[str, list[str]] = {}
+    for name in source_names:
+        snapshot = load_snapshot(name)
+        if snapshot is None:
+            raise SnapshotNotFoundError(f"Snapshot '{name}' not found.")
+        for key in snapshot:
+            key_sources.setdefault(key, []).append(name)
+    return key_sources

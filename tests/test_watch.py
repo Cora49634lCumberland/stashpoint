@@ -70,3 +70,12 @@ def test_format_drift_shows_changes(monkeypatch):
     output = format_drift(result)
     assert "old" in output
     assert "new" in output
+
+
+def test_format_drift_shows_removed_key(monkeypatch):
+    """format_drift should mention keys present in snapshot but missing from env."""
+    _save("snap", {"GONE_KEY": "somevalue"})
+    monkeypatch.delenv("GONE_KEY", raising=False)
+    result = check_drift("snap")
+    output = format_drift(result)
+    assert "GONE_KEY" in output

@@ -92,12 +92,24 @@ def test_detects_conflicts_on_same_key_different_value():
 
 
 def test_no_conflict_when_values_identical():
-    _save("a", {"X": "same"})
-    _save("b", {"X": "same"})
+    """Keys shared across snapshots with the same value should not be conflicts."""
+    _save("a", {"SHARED": "same", "UNIQUE_A": "1"})
+    _save("b", {"SHARED": "same", "UNIQUE_B": "2"})
     conflicts = get_merge_conflicts(["a", "b"])
-    assert conflicts == {}
+    assert "SHARED" not in conflicts
 
 
-def test_conflicts_missing_snapshot_raises():
-    with pytest.raises(SnapshotNotFoundError):
-        get_merge_conflicts(["does_not_exist"])
+def test_conflicts_missing_source_raises():
+    """get_merge_conflicts should raise SnapshotNotFoundError for unknown snapshots."""
+    with pytest.raises(SnapshotNotFoundError, match="missing"):
+        get_merge_conflicts(["missing"])
+
+
+def test_conflicts_multiple_distinct_values():
+    """A key appearing in three snapshots with three different values lists all values."""
+    _save("a", {"K": "v1"})
+    _save("b", {"K": "v2"})
+    _save("c", {"K": "v3"})
+    conflicts = get_merge_conflicts(["a", "b", "c"])
+    assert "K" in conflicts
+    assert set(conflicts["K"]) == {"v1", "v2", "v3"}

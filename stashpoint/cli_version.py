@@ -53,7 +53,7 @@ def version_show_cmd(snapshot: str, version: int):
     """Show vars stored in a specific VERSION of SNAPSHOT."""
     try:
         entry = get_version(snapshot, version)
-    except VersionNotFoundError as exc:
+    except (SnapshotNotFoundError, VersionNotFoundError) as exc:
         click.echo(str(exc), err=True)
         raise SystemExit(1)
     for k, v in sorted(entry["vars"].items()):

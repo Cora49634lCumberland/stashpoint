@@ -77,3 +77,14 @@ def test_is_bookmarked_true(isolated_stash):
 
 def test_is_bookmarked_false(isolated_stash):
     assert is_bookmarked("snap1") is False
+
+
+def test_remove_bookmark_does_not_affect_others(isolated_stash):
+    """Removing one bookmark should leave other bookmarks intact."""
+    _save("a")
+    _save("b")
+    add_bookmark("a")
+    add_bookmark("b")
+    remove_bookmark("a")
+    assert is_bookmarked("b") is True
+    assert is_bookmarked("a") is False

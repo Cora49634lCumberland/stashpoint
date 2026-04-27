@@ -72,3 +72,34 @@ def show(name: str) -> Dict[str, str]:
     if env_vars is None:
         raise KeyError(f"Snapshot '{name}' not found.")
     return env_vars
+
+
+def diff(name: str) -> Dict[str, Dict[str, Optional[str]]]:
+    """
+    Compare a named snapshot against the current environment.
+
+    Returns a dict of keys that differ, where each value is a dict with
+    'snapshot' and 'current' entries showing the respective values.
+    Keys present in only one side will have None for the missing side.
+
+    Args:
+        name: The snapshot name to compare.
+
+    Returns:
+        A dict of differing keys to their snapshot vs current values.
+
+    Raises:
+        KeyError: If the snapshot does not exist.
+    """
+    snapshot_vars = load_snapshot(name)
+    if snapshot_vars is None:
+        raise KeyError(f"Snapshot '{name}' not found.")
+
+    current_vars = dict(os.environ)
+    all_keys = set(snapshot_vars) | set(current_vars)
+
+    return {
+        key: {"snapshot": snapshot_vars.get(key), "current": current_vars.get(key)}
+        for key in all_keys
+        if snapshot_vars.get(key) != current_vars.get(key)
+    }
